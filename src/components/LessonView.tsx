@@ -279,7 +279,6 @@ export default function LessonView({
               return (
                 <StatisticsChart
                   key={index}
-                  dataType={viz.data?.dataType}
                   showMean={viz.data?.showMean}
                   showMedian={viz.data?.showMedian}
                 />

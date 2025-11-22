@@ -1,21 +1,12 @@
 import { useState } from 'react'
 import { RotateCcw } from 'lucide-react'
 
-interface Vector {
-  x: number
-  y: number
-  label: string
-  color: string
-}
-
 interface VectorVisualizationProps {
-  vectors?: Vector[]
   showSum?: boolean
   showDotProduct?: boolean
 }
 
 export default function VectorVisualization({
-  vectors = [],
   showSum = false,
   showDotProduct = false,
 }: VectorVisualizationProps) {
@@ -25,7 +16,6 @@ export default function VectorVisualization({
   const scale = 30
   const centerX = 200
   const centerY = 200
-  const maxValue = 8
 
   const sum = showSum
     ? { x: v1.x + v2.x, y: v1.y + v2.y, label: 'v + u', color: '#8b5cf6' }

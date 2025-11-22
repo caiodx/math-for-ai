@@ -2,7 +2,6 @@ import { useState } from 'react'
 import {
   BarChart,
   Bar,
-  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -14,13 +13,11 @@ import {
 import { RotateCcw, TrendingUp } from 'lucide-react'
 
 interface StatisticsChartProps {
-  dataType?: 'distribution' | 'correlation' | 'time-series'
   showMean?: boolean
   showMedian?: boolean
 }
 
 export default function StatisticsChart({
-  dataType = 'distribution',
   showMean = true,
   showMedian = true,
 }: StatisticsChartProps) {

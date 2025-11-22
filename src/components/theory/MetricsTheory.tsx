@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Target, BarChart3, CheckCircle, AlertCircle, TrendingUp } from 'lucide-react'
+import { Target, BarChart3, AlertCircle } from 'lucide-react'
 
 export default function MetricsTheory() {
   return (

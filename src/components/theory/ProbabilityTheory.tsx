@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Dice6, Target, TrendingUp, Zap } from 'lucide-react'
+import { Target, TrendingUp, Zap } from 'lucide-react'
 
 export default function ProbabilityTheory() {
   return (

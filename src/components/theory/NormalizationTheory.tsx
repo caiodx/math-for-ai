@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Scale, AlertTriangle, CheckCircle, Zap } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Zap } from 'lucide-react'
 
 export default function NormalizationTheory() {
   return (

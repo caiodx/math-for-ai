@@ -37,7 +37,7 @@ git add .
 git commit -m "feat: initial commit - Math for AI interactive guide"
 
 # Adicionar repositório remoto (SUBSTITUA pelo seu usuário)
-git remote add origin https://github.com/SEU-USUARIO/math-for-ai.git
+git remote add origin https://github.com/caiodx/math-for-ai.git
 
 # Renomear branch para main (se necessário)
 git branch -M main

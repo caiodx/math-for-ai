@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { AlertTriangle, TrendingUp, TrendingDown, CheckCircle, XCircle } from 'lucide-react'
+import { TrendingUp, TrendingDown, CheckCircle, XCircle } from 'lucide-react'
 
 export default function OverfittingTheory() {
   return (

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import VectorDiagram from '../visualizations/VectorDiagram'
 import VectorOperationsDiagram from '../visualizations/VectorOperationsDiagram'
-import { ArrowRight, Zap, Target, TrendingUp } from 'lucide-react'
+import { Zap, Target, TrendingUp } from 'lucide-react'
 
 export default function VectorsTheory() {
   return (

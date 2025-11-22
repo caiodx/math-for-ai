@@ -24,8 +24,6 @@ export default function StatisticsDiagram({
   const stdDev = Math.sqrt(variance)
 
   const max = Math.max(...data)
-  const min = Math.min(...data)
-  const range = max - min || 1
   const width = 400
   const height = 200
   const barWidth = width / data.length

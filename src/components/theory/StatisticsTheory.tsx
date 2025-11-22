@@ -1,0 +1,283 @@
+import { motion } from 'framer-motion'
+import StatisticsDiagram from '../visualizations/StatisticsDiagram'
+import { BarChart3, TrendingUp, AlertTriangle, Target } from 'lucide-react'
+
+export default function StatisticsTheory() {
+  return (
+    <div className="space-y-8">
+      {/* Hero */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-8 text-white"
+      >
+        <div className="flex items-center space-x-4">
+          <div className="text-6xl">📊</div>
+          <div>
+            <h2 className="text-3xl font-bold mb-2">Medidas de Tendência Central</h2>
+            <p className="text-purple-100 text-lg">
+              Descobrindo o valor "típico" dos seus dados!
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Analogia para Programadores */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-6 border-l-4 border-yellow-500"
+      >
+        <div className="flex items-start space-x-4">
+          <Target className="w-8 h-8 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+              Para Programadores: Pense como Arrays de Dados
+            </h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              Em programação, você já calcula médias o tempo todo! Em IA, você precisa entender melhor os dados:
+            </p>
+            <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-4 mb-3">
+              <pre className="text-green-400 text-sm">
+{`# Exemplo: Preços de casas
+precos = [100000, 200000, 300000, 400000, 5000000]
+
+# Média (pode ser enganosa!)
+media = sum(precos) / len(precos)
+# 1200000 - mas tem um outlier de 5 milhões!
+
+# Mediana (mais robusta)
+mediana = sorted(precos)[len(precos)//2]
+# 300000 - representa melhor os dados!`}
+              </pre>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                <strong>💡 Problema Real:</strong> A média pode ser <strong>enganosa</strong> se houver valores extremos (outliers). Por isso você precisa conhecer outras medidas!
+              </p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Visualização */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+          <BarChart3 className="w-6 h-6 mr-2 text-purple-600" />
+          Visualização: Medidas Estatísticas
+        </h3>
+        <StatisticsDiagram
+          data={[10, 20, 15, 25, 18, 22, 30, 12, 28, 20]}
+          showMean={true}
+          showMedian={true}
+          showStdDev={true}
+        />
+      </div>
+
+      {/* As Três Medidas - Versão Programador */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-green-50 dark:bg-green-900/20 rounded-xl p-6 border border-green-200 dark:border-green-800"
+        >
+          <div className="text-4xl mb-4">📊</div>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-lg">
+            Média (Mean)
+          </h4>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+            Soma todos e divide pelo total (você já sabe fazer isso!)
+          </p>
+          <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-3 mb-3">
+            <pre className="text-green-400 text-xs">
+{`# Em Python
+dados = [10, 20, 30]
+media = sum(dados) / len(dados)
+# 20
+
+# Em Pandas
+df['coluna'].mean()`}
+            </pre>
+          </div>
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center text-green-600">
+              <span className="mr-2">✓</span>
+              <span>Fácil - você já usa!</span>
+            </div>
+            <div className="flex items-center text-red-600">
+              <span className="mr-2">✗</span>
+              <span>Um valor muito grande distorce</span>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-red-50 dark:bg-red-900/20 rounded-xl p-6 border border-red-200 dark:border-red-800"
+        >
+          <div className="text-4xl mb-4">🎯</div>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-lg">
+            Mediana (Median)
+          </h4>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+            Valor do meio quando ordenado (ignora extremos!)
+          </p>
+          <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-3 mb-3">
+            <pre className="text-green-400 text-xs">
+{`# Em Python
+dados = [1, 3, 5, 7, 9]
+mediana = sorted(dados)[len(dados)//2]
+# 5 (valor do meio)
+
+# Em Pandas
+df['coluna'].median()`}
+            </pre>
+          </div>
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center text-green-600">
+              <span className="mr-2">✓</span>
+              <span>Ignora valores extremos</span>
+            </div>
+            <div className="flex items-center text-yellow-600">
+              <span className="mr-2">⚠</span>
+              <span>Usa só o valor do meio</span>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800"
+        >
+          <div className="text-4xl mb-4">🏆</div>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-3 text-lg">
+            Moda (Mode)
+          </h4>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+            Valor que aparece mais vezes (como contar frequências!)
+          </p>
+          <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-3 mb-3">
+            <pre className="text-green-400 text-xs">
+{`# Em Python
+from collections import Counter
+dados = [2, 3, 3, 4, 4, 4]
+moda = Counter(dados).most_common(1)[0][0]
+# 4 (aparece 3 vezes)
+
+# Em Pandas
+df['coluna'].mode()`}
+            </pre>
+          </div>
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center text-green-600">
+              <span className="mr-2">✓</span>
+              <span>Útil para dados categóricos</span>
+            </div>
+            <div className="flex items-center text-yellow-600">
+              <span className="mr-2">⚠</span>
+              <span>Pode não ter moda</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Quando Usar */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800"
+      >
+        <div className="flex items-start space-x-4">
+          <TrendingUp className="w-8 h-8 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Quando Usar Cada Uma?
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  Use Média quando:
+                </h4>
+                <ul className="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                  <li>✓ Dados simétricos</li>
+                  <li>✓ Sem outliers</li>
+                  <li>✓ Precisa usar todos os dados</li>
+                </ul>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  Use Mediana quando:
+                </h4>
+                <ul className="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                  <li>✓ Tem outliers</li>
+                  <li>✓ Dados assimétricos</li>
+                  <li>✓ Precisa de robustez</li>
+                </ul>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  Use Moda quando:
+                </h4>
+                <ul className="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                  <li>✓ Dados categóricos</li>
+                  <li>✓ Quer valor mais comum</li>
+                  <li>✓ Dados nominais</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Em IA */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+          <AlertTriangle className="w-6 h-6 mr-2 text-purple-600" />
+          Aplicações em IA
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+              Normalização
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Subtrair a média dos dados antes de treinar modelos
+            </p>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+              Feature Engineering
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Criar features baseadas na média, mediana ou moda
+            </p>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+              Avaliação
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Calcular métricas como MAE (Mean Absolute Error)
+            </p>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+              Preprocessing
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Usar mediana para remover outliers dos dados
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+

@@ -43,18 +43,123 @@ export default function StatisticsTheory() {
 {`# Exemplo: Preços de casas
 precos = [100000, 200000, 300000, 400000, 5000000]
 
-# Média (pode ser enganosa!)
-media = sum(precos) / len(precos)
-# 1200000 - mas tem um outlier de 5 milhões!
-
-# Mediana (mais robusta)
-mediana = sorted(precos)[len(precos)//2]
-# 300000 - representa melhor os dados!`}
+# Observação: 4 casas normais (100k a 400k)
+#             + 1 mansão de 5 milhões (outlier!)`}
               </pre>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                <strong>💡 Problema Real:</strong> A média pode ser <strong>enganosa</strong> se houver valores extremos (outliers). Por isso você precisa conhecer outras medidas!
+            
+            {/* Explicação Detalhada da Média */}
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 mb-3 border border-red-200 dark:border-red-800">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                ❌ Média: Por que é Enganosa?
+              </h4>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 mb-3">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                  <strong>Cálculo passo a passo:</strong>
+                </p>
+                <div className="bg-gray-100 dark:bg-gray-700 rounded p-2 mb-2">
+                  <div className="text-xs font-mono text-gray-700 dark:text-gray-300 space-y-1">
+                    <div>Soma = 100000 + 200000 + 300000 + 400000 + 5000000</div>
+                    <div>Soma = <strong className="text-red-600">6000000</strong></div>
+                    <div className="mt-2">Média = 6000000 / 5 = <strong className="text-red-600">1.200.000</strong></div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
+                  <strong>Problema:</strong> A média de R$ 1.200.000 sugere que as casas custam mais de 1 milhão, 
+                  mas na verdade <strong>4 das 5 casas</strong> custam entre R$ 100k e R$ 400k!
+                </p>
+                <p className="text-xs text-gray-600 dark:text-gray-300">
+                  <strong>Por quê?</strong> A casa de 5 milhões "puxa" a média para cima, distorcendo completamente o resultado!
+                </p>
+              </div>
+            </div>
+
+            {/* Explicação Detalhada da Mediana */}
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-3 border border-green-200 dark:border-green-800">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                ✅ Mediana: Por que é Melhor?
+              </h4>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 mb-3">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                  <strong>Cálculo passo a passo:</strong>
+                </p>
+                <div className="bg-gray-100 dark:bg-gray-700 rounded p-2 mb-2">
+                  <div className="text-xs font-mono text-gray-700 dark:text-gray-300 space-y-1">
+                    <div>1. Ordenar: [100000, 200000, <strong className="text-green-600">300000</strong>, 400000, 5000000]</div>
+                    <div>2. Pegar o valor do meio (posição 3 de 5): <strong className="text-green-600">300000</strong></div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
+                  <strong>Por que é melhor?</strong>
+                </p>
+                <ul className="text-xs text-gray-600 dark:text-gray-300 space-y-1 list-disc list-inside ml-2">
+                  <li>A mediana <strong>ignora completamente</strong> a casa de 5 milhões</li>
+                  <li>Ela pega apenas o valor do meio: R$ 300.000</li>
+                  <li>Isso representa muito melhor as <strong>4 casas normais</strong> (100k, 200k, 300k, 400k)</li>
+                  <li>A mediana não é afetada por valores extremos (outliers)</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Comparação Visual */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-3 border border-blue-200 dark:border-blue-800">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                📊 Comparação Visual
+              </h4>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div className="text-xs text-gray-700 dark:text-gray-300 space-y-2">
+                  <div>
+                    <strong>Dados reais:</strong>
+                    <div className="bg-gray-100 dark:bg-gray-700 rounded p-2 mt-1 font-mono">
+                      [100k, 200k, 300k, 400k, <span className="text-red-600 font-bold">5M</span>]
+                    </div>
+                  </div>
+                  <div>
+                    <strong className="text-red-600">Média: R$ 1.200.000</strong> ❌
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Enganosa! Sugere que todas as casas custam mais de 1 milhão
+                    </div>
+                  </div>
+                  <div>
+                    <strong className="text-green-600">Mediana: R$ 300.000</strong> ✅
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Correta! Representa bem as 4 casas normais (entre 100k e 400k)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Código Completo */}
+            <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-4 mb-3">
+              <pre className="text-green-400 text-sm">
+{`# Exemplo completo em Python
+precos = [100000, 200000, 300000, 400000, 5000000]
+
+# Média (pode ser enganosa!)
+media = sum(precos) / len(precos)
+print(f"Média: R$ {media:,.0f}")
+# Média: R$ 1,200,000 ❌ (engana!)
+
+# Mediana (mais robusta - ignora outliers!)
+precos_ordenados = sorted(precos)
+mediana = precos_ordenados[len(precos_ordenados) // 2]
+print(f"Mediana: R$ {mediana:,.0f}")
+# Mediana: R$ 300,000 ✅ (representa melhor!)
+
+# Em Pandas
+import pandas as pd
+df = pd.DataFrame({'precos': precos})
+print(f"Média: R$ {df['precos'].mean():,.0f}")
+print(f"Mediana: R$ {df['precos'].median():,.0f}")`}
+              </pre>
+            </div>
+
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 border border-yellow-200 dark:border-yellow-800">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                <strong>💡 Resumo:</strong> Quando há <strong>outliers</strong> (valores extremos como a casa de 5 milhões), 
+                a <strong>média é enganosa</strong> porque é "puxada" pelo valor extremo. A <strong>mediana é melhor</strong> 
+                porque ignora os extremos e pega apenas o valor do meio, representando melhor os dados "normais"!
               </p>
             </div>
           </div>

@@ -351,6 +351,125 @@ Veja o diagrama visual abaixo para entender melhor!
     color: 'bg-green-500',
     lessons: [
       {
+        id: 'limites',
+        title: 'Limites',
+        description: 'Entenda o conceito de limite, base fundamental para derivadas',
+        content: {
+          theory: `
+# Limites
+
+## O que é um Limite?
+
+Imagine que você está **se aproximando** de um ponto, mas **nunca chega exatamente nele**. O limite é o valor que a função "tende" quando você se aproxima infinitamente perto.
+
+### Analogia do Dia a Dia
+
+Pense em uma **parede**:
+- Você pode se aproximar **muito, muito perto** da parede
+- Mas nunca pode **atravessar** ela
+- O limite é como perguntar: "Se eu pudesse chegar infinitamente perto, qual seria o valor?"
+
+## Por que Limites são Importantes?
+
+**Limites são a base das derivadas!** Sem entender limites, você não consegue entender derivadas de verdade.
+
+### Definição Formal (Simplificada)
+
+O limite de f(x) quando x se aproxima de a é L:
+
+**lim(x→a) f(x) = L**
+
+Isso significa: quando x fica **muito próximo** de a, f(x) fica **muito próximo** de L.
+
+## Exemplos Práticos
+
+### Exemplo 1: Limite Simples
+
+lim(x→2) x = 2
+
+**Por quê?** Quando x se aproxima de 2, x é 2. Simples!
+
+### Exemplo 2: Limite de Função
+
+lim(x→3) (x + 1) = 4
+
+**Por quê?** Quando x se aproxima de 3, (x + 1) se aproxima de 4.
+
+### Exemplo 3: Limite "Problemático"
+
+lim(x→0) (x² / x) = ?
+
+Quando x = 0, temos 0/0 (indeterminado!). Mas podemos simplificar:
+- x² / x = x (quando x ≠ 0)
+- Então lim(x→0) x = 0
+
+## Limites e Derivadas
+
+A derivada é definida usando limites:
+
+**f'(x) = lim(h→0) [f(x+h) - f(x)] / h**
+
+Isso significa: a derivada é o limite da **taxa de variação** quando a diferença h fica **infinitamente pequena**!
+
+## Em Código
+
+Em Python, você pode calcular limites numericamente (aproximando):
+
+\`\`\`python
+import numpy as np
+
+# Limite de (x² - 1) / (x - 1) quando x → 1
+x_values = np.array([0.9, 0.99, 0.999, 0.9999])
+f_values = (x_values**2 - 1) / (x_values - 1)
+# Resultado se aproxima de 2!
+\`\`\`
+
+## Por que Isso Importa para IA?
+
+- **Derivadas** (usadas em gradiente descendente) são definidas com limites
+- **Otimização** precisa entender comportamento quando valores se aproximam de pontos críticos
+- **Backpropagation** calcula derivadas, que dependem de limites
+          `,
+          examples: [
+            {
+              title: 'Exemplo 1: Limite Básico',
+              description: 'Calcule lim(x→5) (2x + 3)',
+              solution: 'lim(x→5) (2x + 3) = 2(5) + 3 = 13',
+            },
+            {
+              title: 'Exemplo 2: Limite com Simplificação',
+              description: 'Calcule lim(x→2) (x² - 4) / (x - 2)',
+              solution: 'Simplificando: (x-2)(x+2)/(x-2) = x+2. Então lim(x→2) (x+2) = 4',
+            },
+          ],
+        },
+        exercises: [
+          {
+            id: 'ex1',
+            question: 'Qual é lim(x→3) (x + 2)?',
+            type: 'multiple-choice',
+            options: ['3', '5', '6', '9'],
+            correctAnswer: '5',
+            explanation: 'Quando x se aproxima de 3, (x + 2) se aproxima de 5',
+          },
+          {
+            id: 'ex2',
+            question: 'Qual é lim(x→0) (x² / x)?',
+            type: 'input',
+            correctAnswer: '0',
+            explanation: 'Simplificando: x²/x = x (quando x≠0). Então lim(x→0) x = 0',
+          },
+          {
+            id: 'ex3',
+            question: 'A derivada é definida usando limites. Verdadeiro ou Falso?',
+            type: 'multiple-choice',
+            options: ['Verdadeiro', 'Falso'],
+            correctAnswer: 'Verdadeiro',
+            explanation: 'Sim! f\'(x) = lim(h→0) [f(x+h) - f(x)] / h',
+          },
+        ],
+      },
+      {
         id: 'derivadas',
         title: 'Derivadas',
         description: 'Entenda o conceito de derivada e sua importância em IA',

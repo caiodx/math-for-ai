@@ -14,6 +14,7 @@ import DerivativeDiagram from './visualizations/DerivativeDiagram'
 import StatisticsDiagram from './visualizations/StatisticsDiagram'
 import VectorsTheory from './theory/VectorsTheory'
 import MatricesTheory from './theory/MatricesTheory'
+import LimitsTheory from './theory/LimitsTheory'
 import DerivativesTheory from './theory/DerivativesTheory'
 import StatisticsTheory from './theory/StatisticsTheory'
 import GradientsTheory from './theory/GradientsTheory'
@@ -82,6 +83,7 @@ export default function LessonView({
         {lesson.id === 'vetores' && <VectorsTheory />}
         {lesson.id === 'magnitude-direcao' && <MagnitudeDirectionTheory />}
         {lesson.id === 'matrizes' && <MatricesTheory />}
+        {lesson.id === 'limites' && <LimitsTheory />}
         {lesson.id === 'derivadas' && <DerivativesTheory />}
         {lesson.id === 'gradientes' && <GradientsTheory />}
         {lesson.id === 'medidas-tendencia' && <StatisticsTheory />}
@@ -94,7 +96,7 @@ export default function LessonView({
         {lesson.id === 'normalizacao-standardizacao' && <NormalizationTheory />}
         
         {/* Fallback to markdown for other lessons */}
-        {!['vetores', 'magnitude-direcao', 'matrizes', 'derivadas', 'gradientes', 'medidas-tendencia', 'desvio-padrao', 'correlacao', 'probabilidade-basica', 'funcoes-custo', 'overfitting-underfitting', 'metricas-avaliacao', 'normalizacao-standardizacao'].includes(lesson.id) && (
+        {!['vetores', 'magnitude-direcao', 'matrizes', 'limites', 'derivadas', 'gradientes', 'medidas-tendencia', 'desvio-padrao', 'correlacao', 'probabilidade-basica', 'funcoes-custo', 'overfitting-underfitting', 'metricas-avaliacao', 'normalizacao-standardizacao'].includes(lesson.id) && (
           <>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               Teoria

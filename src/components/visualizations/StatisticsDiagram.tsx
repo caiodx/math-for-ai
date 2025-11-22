@@ -29,8 +29,6 @@ export default function StatisticsDiagram({
   const max = Math.max(...data)
   const baseWidth = 800
   const baseHeight = 400
-  const width = baseWidth * zoom
-  const height = baseHeight * zoom
   const barWidth = baseWidth / data.length
   const scale = (baseHeight - 80) / max
 

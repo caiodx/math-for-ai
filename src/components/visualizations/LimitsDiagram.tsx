@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Play, Pause, RotateCcw } from 'lucide-react'
 
 interface LimitsDiagramProps {
   functionType?: 'linear' | 'quadratic' | 'rational'
@@ -9,248 +10,235 @@ interface LimitsDiagramProps {
 export default function LimitsDiagram({
   functionType = 'quadratic',
   point = 2,
-  showApproach = true,
 }: LimitsDiagramProps) {
-  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null)
+  // State for the slider value (x approaching point)
+  const [currentX, setCurrentX] = useState(point - 2)
+  const [isPlaying, setIsPlaying] = useState(false)
 
   const width = 600
   const height = 400
   const padding = 60
-  const xMin = -3
-  const xMax = 5
+  const xMin = point - 3
+  const xMax = point + 3
   const yMin = -2
-  const yMax = 6
+  const yMax = 8 // Adjusted for better visibility
 
   const scaleX = (x: number) => ((x - xMin) / (xMax - xMin)) * (width - 2 * padding) + padding
   const scaleY = (y: number) => height - padding - ((y - yMin) / (yMax - yMin)) * (height - 2 * padding)
 
-  // Funções para plotar
+  // Functions
   const linear = (x: number) => 2 * x + 1
   const quadratic = (x: number) => x * x
   const rational = (x: number) => {
-    if (Math.abs(x - 2) < 0.01) {
-      // Quando x ≈ 2, simplificamos: (x²-4)/(x-2) = (x-2)(x+2)/(x-2) = x+2
-      return x + 2
-    }
+    // (x^2 - 4) / (x - 2)
+    // Technically undefined at x=2, but simplifies to x+2
+    if (Math.abs(x - 2) < 0.0001) return NaN // Represent the hole
     return (x * x - 4) / (x - 2)
   }
 
   const getFunction = (x: number) => {
     switch (functionType) {
-      case 'linear':
-        return linear(x)
-      case 'quadratic':
-        return quadratic(x)
-      case 'rational':
-        return rational(x)
-      default:
-        return quadratic(x)
+      case 'linear': return linear(x)
+      case 'quadratic': return quadratic(x)
+      case 'rational': return rational(x)
+      default: return quadratic(x)
     }
   }
 
-  // Gerar pontos da curva
+  // Animation loop
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setCurrentX(prev => {
+          const step = 0.05
+          const next = prev + step
+          if (next >= point) {
+            setIsPlaying(false)
+            return point
+          }
+          return next
+        })
+      }, 50)
+    }
+    return () => clearInterval(interval)
+  }, [isPlaying, point])
+
+  // Generate curve points
   const curvePoints: string[] = []
   for (let i = 0; i <= 200; i++) {
     const x = xMin + (i / 200) * (xMax - xMin)
-    if (functionType === 'rational' && Math.abs(x - 2) < 0.1) continue
     const y = getFunction(x)
-    if (y >= yMin && y <= yMax) {
+
+    // Skip if NaN (hole) or out of bounds
+    if (!isNaN(y) && y >= yMin && y <= yMax) {
       curvePoints.push(`${scaleX(x)},${scaleY(y)}`)
     }
   }
 
-  const limitValue = getFunction(point)
-  const approachPoints = showApproach
-    ? [
-        point - 0.5,
-        point - 0.2,
-        point - 0.1,
-        point - 0.05,
-        point + 0.05,
-        point + 0.1,
-        point + 0.2,
-        point + 0.5,
-      ]
-    : []
+  // Calculate current values
+  const currentY = getFunction(currentX)
+  // For the limit value, we use the simplified version for rational functions
+  const limitValue = functionType === 'rational' ? point + 2 : getFunction(point)
+
+  // Distance from target
+  const distance = Math.abs(point - currentX)
+  const isClose = distance < 0.1
+  const isVeryClose = distance < 0.01
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-      <svg
-        width="100%"
-        height={height}
-        viewBox={`0 0 ${width} ${height}`}
-        className="overflow-visible"
-      >
-        {/* Grid */}
-        <defs>
-          <pattern
-            id="grid"
-            width="40"
-            height="40"
-            patternUnits="userSpaceOnUse"
+    <div className="w-full bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="mb-4 flex justify-between items-center">
+        <h4 className="font-bold text-gray-900 dark:text-white">
+          Explore o Limite: Arraste o ponto!
+        </h4>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setIsPlaying(!isPlaying)}
+            className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200"
           >
-            <path
-              d="M 40 0 L 0 0 0 40"
-              fill="none"
-              stroke="#e5e7eb"
-              strokeWidth="0.5"
-              className="dark:stroke-gray-700"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
+            {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+          </button>
+          <button
+            onClick={() => {
+              setIsPlaying(false)
+              setCurrentX(point - 2)
+            }}
+            className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200"
+          >
+            <RotateCcw size={16} />
+          </button>
+        </div>
+      </div>
 
-        {/* Eixos */}
-        <line
-          x1={padding}
-          y1={height - padding}
-          x2={width - padding}
-          y2={height - padding}
-          stroke="#374151"
-          strokeWidth="2"
-          className="dark:stroke-gray-300"
-        />
-        <line
-          x1={padding}
-          y1={padding}
-          x2={padding}
-          y2={height - padding}
-          stroke="#374151"
-          strokeWidth="2"
-          className="dark:stroke-gray-300"
-        />
-
-        {/* Labels dos eixos */}
-        {Array.from({ length: Math.floor(xMax - xMin) + 1 }, (_, i) => {
-          const x = xMin + i
-          if (x === 0) return null
-          return (
-            <text
-              key={`x-${x}`}
-              x={scaleX(x)}
-              y={height - padding + 20}
-              textAnchor="middle"
-              className="text-xs fill-gray-600 dark:fill-gray-400"
-            >
-              {x}
-            </text>
-          )
-        })}
-        {Array.from({ length: Math.floor(yMax - yMin) + 1 }, (_, i) => {
-          const y = yMin + i
-          if (y === 0) return null
-          return (
-            <text
-              key={`y-${y}`}
-              x={padding - 10}
-              y={scaleY(y) + 4}
-              textAnchor="end"
-              className="text-xs fill-gray-600 dark:fill-gray-400"
-            >
-              {y}
-            </text>
-          )
-        })}
-
-        {/* Curva */}
-        <polyline
-          points={curvePoints.join(' ')}
-          fill="none"
-          stroke="#3b82f6"
-          strokeWidth="3"
-          className="dark:stroke-blue-400"
-        />
-
-        {/* Ponto do limite */}
-        <circle
-          cx={scaleX(point)}
-          cy={scaleY(limitValue)}
-          r="6"
-          fill="#ef4444"
-          className="dark:fill-red-400"
-          stroke="white"
-          strokeWidth="2"
-        />
-        <text
-          x={scaleX(point)}
-          y={scaleY(limitValue) - 15}
-          textAnchor="middle"
-          className="text-sm font-bold fill-red-600 dark:fill-red-400"
+      <div className="relative">
+        <svg
+          width="100%"
+          height={height}
+          viewBox={`0 0 ${width} ${height}`}
+          className="overflow-visible"
         >
-          lim
-        </text>
+          {/* Grid and Axes (Simplified) */}
+          <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#9ca3af" strokeWidth="2" />
+          <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#9ca3af" strokeWidth="2" />
 
-        {/* Linha vertical no ponto */}
-        <line
-          x1={scaleX(point)}
-          y1={padding}
-          x2={scaleX(point)}
-          y2={height - padding}
-          stroke="#ef4444"
-          strokeWidth="1.5"
-          strokeDasharray="4 4"
-          className="dark:stroke-red-400"
-          opacity="0.5"
+          {/* Curve */}
+          <polyline
+            points={curvePoints.join(' ')}
+            fill="none"
+            stroke="#6366f1"
+            strokeWidth="4"
+            className="dark:stroke-indigo-400"
+            strokeLinecap="round"
+          />
+
+          {/* The Limit Point (Hole or Solid) */}
+          <circle
+            cx={scaleX(point)}
+            cy={scaleY(limitValue)}
+            r="6"
+            fill={functionType === 'rational' ? 'white' : '#ef4444'}
+            stroke="#ef4444"
+            strokeWidth="3"
+            className={functionType === 'rational' ? 'dark:fill-gray-800' : ''}
+          />
+          <text x={scaleX(point)} y={scaleY(limitValue) - 15} textAnchor="middle" className="text-sm font-bold fill-red-500">
+            Alvo
+          </text>
+
+          {/* The Moving Point (You) */}
+          {!isNaN(currentY) && (
+            <g>
+              <circle
+                cx={scaleX(currentX)}
+                cy={scaleY(currentY)}
+                r="8"
+                fill="#10b981"
+                stroke="white"
+                strokeWidth="2"
+                className="transition-all duration-75"
+              />
+              {/* Dashed lines to axes */}
+              <line
+                x1={scaleX(currentX)}
+                y1={scaleY(currentY)}
+                x2={scaleX(currentX)}
+                y2={height - padding}
+                stroke="#10b981"
+                strokeDasharray="4 4"
+                opacity="0.5"
+              />
+              <line
+                x1={scaleX(currentX)}
+                y1={scaleY(currentY)}
+                x2={padding}
+                y2={scaleY(currentY)}
+                stroke="#10b981"
+                strokeDasharray="4 4"
+                opacity="0.5"
+              />
+            </g>
+          )}
+        </svg>
+
+        {/* Overlay Info */}
+        <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between gap-4">
+              <span className="text-gray-500">Sua Posição (x):</span>
+              <span className="font-mono font-bold text-green-600">{currentX.toFixed(4)}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-gray-500">Altura da Função (y):</span>
+              <span className="font-mono font-bold text-green-600">
+                {isNaN(currentY) ? "INDEFINIDO" : currentY.toFixed(4)}
+              </span>
+            </div>
+            <div className="h-px bg-gray-200 dark:bg-gray-700 my-2" />
+            <div className="flex justify-between gap-4">
+              <span className="text-gray-500">Distância do Alvo:</span>
+              <span className={`font-mono font-bold ${isVeryClose ? 'text-green-500' : 'text-orange-500'}`}>
+                {distance.toFixed(4)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Slider Control */}
+      <div className="mt-6">
+        <input
+          type="range"
+          min={point - 2}
+          max={point + 2}
+          step="0.001"
+          value={currentX}
+          onChange={(e) => {
+            setIsPlaying(false)
+            setCurrentX(parseFloat(e.target.value))
+          }}
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-indigo-600"
         />
+        <div className="flex justify-between text-xs text-gray-500 mt-2">
+          <span>Longe ({point - 2})</span>
+          <span>O Alvo ({point})</span>
+          <span>Longe ({point + 2})</span>
+        </div>
+      </div>
 
-        {/* Pontos de aproximação */}
-        {showApproach &&
-          approachPoints.map((x, idx) => {
-            const y = getFunction(x)
-            if (y < yMin || y > yMax) return null
-            return (
-              <g key={`approach-${idx}`}>
-                <circle
-                  cx={scaleX(x)}
-                  cy={scaleY(y)}
-                  r="4"
-                  fill="#10b981"
-                  className="dark:fill-green-400"
-                  opacity="0.7"
-                  onMouseEnter={() => setHoveredPoint(idx)}
-                  onMouseLeave={() => setHoveredPoint(null)}
-                />
-                {hoveredPoint === idx && (
-                  <text
-                    x={scaleX(x)}
-                    y={scaleY(y) - 10}
-                    textAnchor="middle"
-                    className="text-xs fill-green-600 dark:fill-green-400 font-semibold"
-                  >
-                    x={x.toFixed(2)}, y={y.toFixed(2)}
-                  </text>
-                )}
-              </g>
-            )
-          })}
-
-        {/* Label do ponto */}
-        <text
-          x={scaleX(point)}
-          y={height - padding + 35}
-          textAnchor="middle"
-          className="text-sm font-semibold fill-gray-900 dark:fill-white"
-        >
-          x = {point}
-        </text>
-        <text
-          x={width - padding + 10}
-          y={scaleY(limitValue)}
-          textAnchor="start"
-          className="text-sm font-semibold fill-gray-900 dark:fill-white"
-        >
-          lim = {limitValue.toFixed(2)}
-        </text>
-      </svg>
-
-      <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 text-center">
-        <p>
-          <strong>Ponto vermelho:</strong> O limite quando x → {point}
-        </p>
-        {showApproach && (
-          <p className="mt-1">
-            <strong>Pontos verdes:</strong> Valores se aproximando do ponto (hover para ver valores)
-          </p>
+      {/* Feedback Message */}
+      <div className={`mt-4 p-3 rounded-lg text-center transition-colors duration-300 ${isVeryClose
+        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+        : 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+        }`}>
+        {isVeryClose ? (
+          <span className="font-bold flex items-center justify-center gap-2">
+            🎉 Você está incrivelmente perto! O limite é {limitValue}!
+          </span>
+        ) : isClose ? (
+          <span>Quase lá... continue se aproximando!</span>
+        ) : (
+          <span>Arraste o slider para se aproximar do alvo</span>
         )}
       </div>
     </div>

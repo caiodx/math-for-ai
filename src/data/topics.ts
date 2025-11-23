@@ -439,7 +439,11 @@ f_values = (x_values**2 - 1) / (x_values - 1)
             {
               title: 'Exemplo 2: Limite com Simplificação',
               description: 'Calcule lim(x→2) (x² - 4) / (x - 2)',
-              solution: 'Simplificando: (x-2)(x+2)/(x-2) = x+2. Então lim(x→2) (x+2) = 4',
+              solution: `Passo a passo:
+1. Fatoramos o numerador: x² - 4 = (x-2)(x+2)
+2. A expressão vira: [(x-2)(x+2)] / (x-2)
+3. Cancelamos (x-2): Sobra (x+2)
+4. Calculamos o limite: 2 + 2 = 4`,
             },
           ],
         },

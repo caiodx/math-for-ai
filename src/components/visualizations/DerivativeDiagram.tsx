@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Play, Pause, RotateCcw, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 interface DerivativeDiagramProps {
   showTangent?: boolean
@@ -7,289 +7,219 @@ interface DerivativeDiagramProps {
 }
 
 export default function DerivativeDiagram({
-  showTangent = true,
   point = 2,
 }: DerivativeDiagramProps) {
-  const [zoom, setZoom] = useState(0.75)
+  // State for the slider value (x position)
+  const [currentX, setCurrentX] = useState(point)
+  const [isPlaying, setIsPlaying] = useState(false)
+
   const width = 600
   const height = 400
-  const centerX = width / 2
-  const centerY = height / 2
-  const baseScale = 50
-  const scale = baseScale * zoom
+  const padding = 60
+  const xMin = -3
+  const xMax = 5
+  const yMin = -2
+  const yMax = 10
 
-  // Função f(x) = x²
-  const f = (x: number) => x * x
-  const fPrime = (x: number) => 2 * x // Derivada
+  const scaleX = (x: number) => ((x - xMin) / (xMax - xMin)) * (width - 2 * padding) + padding
+  const scaleY = (y: number) => height - padding - ((y - yMin) / (yMax - yMin)) * (height - 2 * padding)
 
-  const pointX = point
-  const pointY = f(pointX)
-  const slope = fPrime(pointX)
-  const tangentY0 = pointY - slope * pointX
+  // Function f(x) = x²
+  // We can add more functions later if needed
+  const f = (x: number) => 0.5 * x * x // Using 0.5x^2 to fit better in view
+  const fPrime = (x: number) => x // Derivative of 0.5x^2 is x
 
-  // Coordenadas para o gráfico
-  const graphX = (x: number) => centerX + x * scale
-  const graphY = (y: number) => centerY - y * scale
+  // Animation loop
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setCurrentX(prev => {
+          const step = 0.05
+          const next = prev + step
+          if (next >= xMax - 1) {
+            setIsPlaying(false)
+            return xMin + 1
+          }
+          return next
+        })
+      }, 50)
+    }
+    return () => clearInterval(interval)
+  }, [isPlaying])
+
+  // Current values
+  const currentY = f(currentX)
+  const slope = fPrime(currentX)
+
+  // Tangent line calculation
+  // y - y0 = m(x - x0) => y = m(x - x0) + y0
+  const tangentLength = 2
+  const x1 = currentX - tangentLength
+  const y1 = slope * (x1 - currentX) + currentY
+  const x2 = currentX + tangentLength
+  const y2 = slope * (x2 - currentX) + currentY
+
+  // Generate curve points
+  const curvePoints: string[] = []
+  for (let i = 0; i <= 200; i++) {
+    const x = xMin + (i / 200) * (xMax - xMin)
+    const y = f(x)
+    if (y >= yMin && y <= yMax) {
+      curvePoints.push(`${scaleX(x)},${scaleY(y)}`)
+    }
+  }
+
+  // Determine slope status
+  const slopeStatus = Math.abs(slope) < 0.1 ? 'zero' : slope > 0 ? 'positive' : 'negative'
+  const slopeColor = slopeStatus === 'positive' ? '#10b981' : slopeStatus === 'negative' ? '#ef4444' : '#f59e0b'
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
-        Derivada como Inclinação da Reta Tangente
-      </h4>
-      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 mb-4">
-        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 text-center">
-          <strong>O que está sendo mostrado:</strong>
-        </p>
-        <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1 text-center">
-          <p>
-            <strong className="text-blue-600 dark:text-blue-400">f(x) = x²</strong> → A função original (curva azul)
-          </p>
-          <p>
-            <strong className="text-green-600 dark:text-green-400">f'(x) = 2x</strong> → A derivada (inclinação em cada ponto)
-          </p>
-          <p>
-            <strong className="text-red-600 dark:text-red-400">No ponto x = {point}</strong> → Estamos analisando aqui
-          </p>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">
-            <strong>Em código:</strong> Se <code className="bg-gray-200 dark:bg-gray-800 px-1 rounded">f(x) = x²</code>, então 
-            <code className="bg-gray-200 dark:bg-gray-800 px-1 rounded">f'({point}) = {slope}</code> é a taxa de mudança nesse ponto!
-          </p>
+    <div className="w-full bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="mb-4 flex justify-between items-center">
+        <h4 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <TrendingUp className="w-5 h-5 text-indigo-600" />
+          Dirija na Curva!
+        </h4>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setIsPlaying(!isPlaying)}
+            className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200"
+          >
+            {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+          </button>
+          <button
+            onClick={() => {
+              setIsPlaying(false)
+              setCurrentX(0)
+            }}
+            className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200"
+          >
+            <RotateCcw size={16} />
+          </button>
         </div>
       </div>
 
-      {/* Zoom Controls */}
-      <div className="flex items-center justify-center gap-4 mb-4">
-        <button
-          onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
-          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold"
-          aria-label="Diminuir zoom"
+      <div className="relative">
+        <svg
+          width="100%"
+          height={height}
+          viewBox={`0 0 ${width} ${height}`}
+          className="overflow-visible"
         >
-          −
-        </button>
-        <span className="text-sm text-gray-700 dark:text-gray-300 min-w-[80px] text-center">
-          Zoom: {(zoom * 100).toFixed(0)}%
-        </span>
-        <button
-          onClick={() => setZoom(Math.min(3, zoom + 0.25))}
-          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-semibold"
-          aria-label="Aumentar zoom"
-        >
-          +
-        </button>
-        <button
-          onClick={() => setZoom(1)}
-          className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
-          aria-label="Resetar zoom"
-        >
-          Resetar
-        </button>
+          {/* Grid and Axes (Simplified) */}
+          <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#9ca3af" strokeWidth="2" />
+          <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#9ca3af" strokeWidth="2" />
+
+          {/* Zero line for Y */}
+          <line
+            x1={padding}
+            y1={scaleY(0)}
+            x2={width - padding}
+            y2={scaleY(0)}
+            stroke="#e5e7eb"
+            strokeWidth="1"
+            strokeDasharray="4 4"
+            className="dark:stroke-gray-700"
+          />
+
+          {/* Curve */}
+          <polyline
+            points={curvePoints.join(' ')}
+            fill="none"
+            stroke="#6366f1"
+            strokeWidth="4"
+            className="dark:stroke-indigo-400"
+            strokeLinecap="round"
+          />
+
+          {/* Tangent Line */}
+          <line
+            x1={scaleX(x1)}
+            y1={scaleY(y1)}
+            x2={scaleX(x2)}
+            y2={scaleY(y2)}
+            stroke={slopeColor}
+            strokeWidth="3"
+            strokeDasharray="6 4"
+          />
+
+          {/* The Point (Car) */}
+          <circle
+            cx={scaleX(currentX)}
+            cy={scaleY(currentY)}
+            r="8"
+            fill={slopeColor}
+            stroke="white"
+            strokeWidth="2"
+            className="transition-all duration-75 shadow-lg"
+          />
+
+          {/* Slope Indicator Line (Vertical) */}
+          <line
+            x1={scaleX(currentX)}
+            y1={scaleY(currentY)}
+            x2={scaleX(currentX)}
+            y2={height - padding}
+            stroke={slopeColor}
+            strokeDasharray="2 2"
+            opacity="0.5"
+          />
+        </svg>
+
+        {/* Overlay Info - Speedometer Style */}
+        <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 backdrop-blur-sm w-48">
+          <div className="text-center">
+            <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Inclinação (Derivada)</span>
+            <div className={`text-3xl font-mono font-bold my-1 transition-colors duration-300`} style={{ color: slopeColor }}>
+              {slope.toFixed(2)}
+            </div>
+            <div className="flex justify-center items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
+              {slopeStatus === 'positive' && <><TrendingUp size={16} /> Subindo</>}
+              {slopeStatus === 'negative' && <><TrendingDown size={16} /> Descendo</>}
+              {slopeStatus === 'zero' && <><Minus size={16} /> Plano</>}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="w-full">
-        {/* Grid */}
-        <defs>
-          <pattern
-            id="grid-derivative"
-            width={baseScale}
-            height={baseScale}
-            patternUnits="userSpaceOnUse"
-          >
-            <path
-              d={`M ${baseScale} 0 L 0 0 0 ${baseScale}`}
-              fill="none"
-              stroke="#e5e7eb"
-              strokeWidth="0.5"
-              className="dark:stroke-gray-700"
-            />
-          </pattern>
-        </defs>
-        <rect width={width} height={height} fill="url(#grid-derivative)" />
-
-        {/* Axes */}
-        <line
-          x1="0"
-          y1={centerY}
-          x2={width}
-          y2={centerY}
-          stroke="#6b7280"
-          strokeWidth="2"
+      {/* Slider Control */}
+      <div className="mt-6">
+        <input
+          type="range"
+          min={xMin + 0.5}
+          max={xMax - 0.5}
+          step="0.01"
+          value={currentX}
+          onChange={(e) => {
+            setIsPlaying(false)
+            setCurrentX(parseFloat(e.target.value))
+          }}
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-indigo-600"
         />
-        <line
-          x1={centerX}
-          y1={height}
-          x2={centerX}
-          y2="0"
-          stroke="#6b7280"
-          strokeWidth="2"
-        />
+        <div className="flex justify-between text-xs text-gray-500 mt-2">
+          <span>Esquerda (Descendo)</span>
+          <span>Fundo do Vale (0)</span>
+          <span>Direita (Subindo)</span>
+        </div>
+      </div>
 
-        {/* X-axis labels */}
-        {(() => {
-          const range = Math.ceil(6 / zoom)
-          const step = zoom >= 1.5 ? 0.5 : zoom >= 0.75 ? 1 : 2
-          const labels: JSX.Element[] = []
-          
-          for (let x = -range; x <= range; x += step) {
-            if (Math.abs(x) < 0.01) continue
-            const xPos = graphX(x)
-            if (xPos < 0 || xPos > width) continue
-            
-            labels.push(
-              <g key={`x-${x}`}>
-                <line
-                  x1={xPos}
-                  y1={centerY - 5}
-                  x2={xPos}
-                  y2={centerY + 5}
-                  stroke="#6b7280"
-                  strokeWidth="2"
-                />
-                <text
-                  x={xPos}
-                  y={centerY + 20}
-                  fill="#6b7280"
-                  fontSize="12"
-                  textAnchor="middle"
-                  className="dark:fill-gray-300"
-                >
-                  {x % 1 === 0 ? x : x.toFixed(1)}
-                </text>
-              </g>
-            )
-          }
-          return labels
-        })()}
-
-        {/* Y-axis labels */}
-        {(() => {
-          const range = Math.ceil(12 / zoom)
-          const step = zoom >= 1.5 ? 1 : zoom >= 0.75 ? 2 : 4
-          const labels: JSX.Element[] = []
-          
-          for (let y = -range; y <= range; y += step) {
-            if (Math.abs(y) < 0.01) continue
-            const yPos = graphY(y)
-            if (yPos < 0 || yPos > height) continue
-            
-            labels.push(
-              <g key={`y-${y}`}>
-                <line
-                  x1={centerX - 5}
-                  y1={yPos}
-                  x2={centerX + 5}
-                  y2={yPos}
-                  stroke="#6b7280"
-                  strokeWidth="2"
-                />
-                <text
-                  x={centerX - 15}
-                  y={yPos + 4}
-                  fill="#6b7280"
-                  fontSize="12"
-                  textAnchor="end"
-                  className="dark:fill-gray-300"
-                >
-                  {y % 1 === 0 ? y : y.toFixed(1)}
-                </text>
-              </g>
-            )
-          }
-          return labels
-        })()}
-
-        {/* Function curve f(x) = x² */}
-        {(() => {
-          const range = Math.max(3, 6 / zoom)
-          const steps = Math.ceil(60 * zoom)
-          const stepSize = (range * 2) / steps
-          
-          return (
-            <motion.path
-              d={`M ${graphX(-range)} ${graphY(f(-range))} ${Array.from({ length: steps }, (_, i) => {
-                const x = -range + (i * stepSize)
-                return `L ${graphX(x)} ${graphY(f(x))}`
-              }).join(' ')}`}
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="3"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1.5 }}
-            />
-          )
-        })()}
-
-        {/* Point on curve */}
-        <motion.circle
-          cx={graphX(pointX)}
-          cy={graphY(pointY)}
-          r="6"
-          fill="#ef4444"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 1, type: 'spring' }}
-        />
-
-        {/* Tangent line */}
-        {showTangent && (
-          <motion.line
-            x1={graphX(pointX - 2)}
-            y1={graphY(tangentY0 + slope * (pointX - 2))}
-            x2={graphX(pointX + 2)}
-            y2={graphY(tangentY0 + slope * (pointX + 2))}
-            stroke="#10b981"
-            strokeWidth="3"
-            strokeDasharray="5,5"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-          />
-        )}
-
-        {/* Labels */}
-        <text
-          x={graphX(pointX) + 10}
-          y={graphY(pointY) - 10}
-          fill="#ef4444"
-          fontSize="12"
-          fontWeight="bold"
-        >
-          ({point}, {pointY})
-        </text>
-        <text
-          x={graphX(pointX + 1.5)}
-          y={graphY(tangentY0 + slope * (pointX + 1.5)) - 10}
-          fill="#10b981"
-          fontSize="11"
-        >
-          Tangente (inclinação = {slope})
-        </text>
-      </svg>
-
-      <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-        <div className="space-y-2">
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            <strong>📊 O que você está vendo:</strong>
-          </p>
-          <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1.5 ml-4 list-disc">
-            <li>
-              A <strong className="text-blue-600 dark:text-blue-400">curva azul</strong> é a função f(x) = x²
-            </li>
-            <li>
-              O <strong className="text-red-600 dark:text-red-400">ponto vermelho</strong> ({point}, {pointY}) marca onde estamos analisando
-            </li>
-            <li>
-              A <strong className="text-green-600 dark:text-green-400">reta verde tracejada</strong> é a reta tangente - ela "toca" a curva apenas nesse ponto
-            </li>
-            <li>
-              A <strong>derivada f'({point}) = {slope}</strong> é exatamente a <strong>inclinação dessa reta verde</strong>
-            </li>
-          </ul>
-          <p className="text-sm text-gray-700 dark:text-gray-300 mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
-            <strong>💡 Por que isso importa?</strong> A derivada nos diz <strong>quão rápido</strong> a função está mudando naquele ponto. 
-            Se f'({point}) = {slope}, significa que para cada unidade que você anda no eixo X, a função sobe {slope} unidades no eixo Y. 
-            É essa informação que algoritmos de IA usam para "aprender" e ajustar parâmetros!
-          </p>
+      {/* Educational Context */}
+      <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+        <div className={`p-2 rounded ${slopeStatus === 'negative' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 font-bold' : 'bg-gray-50 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
+          Descida
+          <br />
+          (Derivada Negativa)
+        </div>
+        <div className={`p-2 rounded ${slopeStatus === 'zero' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 font-bold' : 'bg-gray-50 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
+          Plano
+          <br />
+          (Derivada Zero)
+        </div>
+        <div className={`p-2 rounded ${slopeStatus === 'positive' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 font-bold' : 'bg-gray-50 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
+          Subida
+          <br />
+          (Derivada Positiva)
         </div>
       </div>
     </div>
